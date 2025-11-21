@@ -1,0 +1,13 @@
+{
+  "name": "auth-system-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Authentication System",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Open index.html in browser'",
+    "dev": "echo 'Open index.html in browser'"
+  },
+  "keywords": ["authentication", "jwt", "vanilla-js"],
+  "author": "MiniMax Agent",
+  "license": "MIT"
+}
