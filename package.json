@@ -4,7 +4,8 @@
   "description": "Frontend for Authentication System",
   "main": "index.html",
   "scripts": {
-    "start": "http-server -c-1 . -p 8080"
+    "start": "http-server -c-1 . -p 8080",
+    "dev": "http-server"
   },
   "keywords": [
     "authentication",

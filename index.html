@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication System</title>
+    <title>Advanced Authentication System v2.0</title>
     <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Advanced JWT Authentication System with refresh tokens and comprehensive security features">
 </head>
 <body>
     <div id="app">
@@ -12,11 +13,17 @@
         <nav id="navigation" class="navbar" style="display: none;">
             <div class="nav-container">
                 <div class="nav-brand">
-                    <h2>Auth System</h2>
+                    <h2>Auth System v2.0</h2>
                 </div>
                 <div class="nav-menu">
-                    <span id="user-info" class="user-info"></span>
-                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                    <div class="nav-info">
+                        <span id="user-info" class="user-info"></span>
+                        <span id="session-info" class="session-info"></span>
+                    </div>
+                    <div class="nav-actions">
+                        <button id="refresh-token-btn" class="btn btn-secondary" style="display: none;">Refresh Token</button>
+                        <button id="logout-btn" class="btn btn-primary">Logout</button>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -25,8 +32,8 @@
         <div id="welcome-view" class="view active">
             <div class="container">
                 <div class="hero">
-                    <h1>Welcome to Authentication System</h1>
-                    <p>A simple JWT-based authentication system with role-based access control.</p>
+                    <h1>Advanced Authentication System v2.0</h1>
+                    <p>Enterprise-grade JWT authentication with refresh tokens, blacklisting, and comprehensive security features.</p>
                     <div class="actions">
                         <button id="login-btn" class="btn btn-primary">Login</button>
                         <button id="about-btn" class="btn btn-secondary">About</button>
@@ -34,34 +41,100 @@
                 </div>
 
                 <div class="features">
-                    <h2>Features</h2>
+                    <h2>Advanced Features</h2>
                     <div class="feature-grid">
                         <div class="feature-card">
-                            <h3>JWT Authentication</h3>
-                            <p>Secure token-based authentication using JSON Web Tokens</p>
+                            <h3>🔄 Refresh Token Rotation</h3>
+                            <p>Automatic token refresh with secure rotation mechanism</p>
+                            <span class="feature-badge">NEW</span>
                         </div>
                         <div class="feature-card">
-                            <h3>Role-Based Access</h3>
-                            <p>Different access levels for admin and customer users</p>
+                            <h3>🛡️ Token Blacklisting</h3>
+                            <p>Immediate token invalidation for enhanced security</p>
+                            <span class="feature-badge">NEW</span>
                         </div>
                         <div class="feature-card">
-                            <h3>Real-time Logging</h3>
-                            <p>Complete request and authentication logging on backend</p>
+                            <h3>🔍 Token Introspection</h3>
+                            <p>RFC 7662 compliant token validation endpoint</p>
+                            <span class="feature-badge">NEW</span>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ Automatic Refresh</h3>
+                            <p>5-minute buffer auto-refresh before expiration</p>
+                            <span class="feature-badge">NEW</span>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Comprehensive Claims</h3>
+                            <p>Issuer, audience, subject, scope, and JTI validation</p>
+                            <span class="feature-badge">NEW</span>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔐 Enhanced Security</h3>
+                            <p>Clock skew tolerance and production-ready algorithms</p>
+                            <span class="feature-badge">NEW</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="demo-credentials">
                     <h2>Demo Credentials</h2>
-                    <div class="credential-card">
-                        <h3>Admin User</h3>
-                        <p><strong>Email:</strong> admin@example.com</p>
-                        <p><strong>Password:</strong> admin123</p>
+                    <div class="credential-grid">
+                        <div class="credential-card admin">
+                            <h3>👑 Admin User</h3>
+                            <p><strong>Email:</strong> admin@example.com</p>
+                            <p><strong>Password:</strong> admin123</p>
+                            <div class="scopes">
+                                <strong>Scopes:</strong> admin, users:read, users:write, stats:read
+                            </div>
+                            <div class="features-list">
+                                <span>✓ User Management</span>
+                                <span>✓ System Statistics</span>
+                                <span>✓ Session Control</span>
+                                <span>✓ Token Blacklisting</span>
+                            </div>
+                        </div>
+                        <div class="credential-card customer">
+                            <h3>👤 Customer User</h3>
+                            <p><strong>Email:</strong> customer@example.com</p>
+                            <p><strong>Password:</strong> customer123</p>
+                            <div class="scopes">
+                                <strong>Scopes:</strong> profile:read, profile:write
+                            </div>
+                            <div class="features-list">
+                                <span>✓ Profile Management</span>
+                                <span>✓ Customer Data</span>
+                                <span>✓ Feedback System</span>
+                                <span>✓ Security Info</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="credential-card">
-                        <h3>Customer User</h3>
-                        <p><strong>Email:</strong> customer@example.com</p>
-                        <p><strong>Password:</strong> customer123</p>
+                </div>
+
+                <div class="architecture-info">
+                    <h2>Architecture Highlights</h2>
+                    <div class="architecture-grid">
+                        <div class="arch-item">
+                            <h4>Backend</h4>
+                            <ul>
+                                <li>Express.js with comprehensive middleware</li>
+                                <li>JWT with RS256/HS256 algorithm support</li>
+                                <li>Refresh token rotation mechanism</li>
+                                <li>Token blacklisting system</li>
+                                <li>RFC 7662 token introspection</li>
+                                <li>Enhanced logging and auditing</li>
+                            </ul>
+                        </div>
+                        <div class="arch-item">
+                            <h4>Frontend</h4>
+                            <ul>
+                                <li>Automatic token refresh (5min buffer)</li>
+                                <li>Comprehensive JWT parsing</li>
+                                <li>Secure token storage management</li>
+                                <li>Development debug tools</li>
+                                <li>Real-time token monitoring</li>
+                                <li>Enhanced user experience</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -71,17 +144,25 @@
         <div id="login-view" class="view">
             <div class="container">
                 <div class="auth-card">
-                    <h2>Login</h2>
+                    <h2>Advanced Login</h2>
+                    <div class="auth-info">
+                        <p>Secure authentication with JWT tokens and refresh token rotation</p>
+                    </div>
                     <form id="login-form">
                         <div class="form-group">
                             <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" required>
+                            <input type="email" id="email" name="email" required autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label for="password">Password:</label>
-                            <input type="password" id="password" name="password" required>
+                            <input type="password" id="password" name="password" required autocomplete="current-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientId">Client ID:</label>
+                            <input type="text" id="clientId" name="clientId" value="web-client" readonly>
                         </div>
                         <div id="login-error" class="error-message" style="display: none;"></div>
+                        <div id="login-success" class="success-message" style="display: none;"></div>
                         <button type="submit" class="btn btn-primary">Login</button>
                     </form>
                     <div class="auth-footer">
@@ -100,15 +181,28 @@
                         <div class="user-section">
                             <h3>Your Profile</h3>
                             <div id="customer-profile" class="info-card">
-                                <!-- Profile information will be loaded here -->
+                                <div class="loading-placeholder">Loading profile...</div>
                             </div>
+                            <button id="customer-update-profile" class="btn btn-secondary">Update Profile</button>
                         </div>
+                        
                         <div class="service-section">
                             <h3>Customer Service</h3>
                             <button id="customer-service-btn" class="btn btn-primary">Access Customer Service</button>
+                            <button id="customer-data-btn" class="btn btn-secondary">View Customer Data</button>
+                            <button id="customer-feedback-btn" class="btn btn-secondary">Submit Feedback</button>
+                            <button id="customer-security-btn" class="btn btn-secondary">Security Info</button>
                             <div id="customer-service-result" class="result-card">
-                                <!-- Service response will be displayed here -->
+                                <!-- Service responses will be displayed here -->
                             </div>
+                        </div>
+
+                        <div class="token-section">
+                            <h3>Token Information</h3>
+                            <div id="customer-token-info" class="info-card">
+                                <div class="loading-placeholder">Loading token info...</div>
+                            </div>
+                            <button id="show-token-debug" class="btn btn-secondary">Debug Token</button>
                         </div>
                     </div>
                 </div>
@@ -125,21 +219,38 @@
                             <h3>Admin Service</h3>
                             <button id="admin-service-btn" class="btn btn-primary">Access Admin Service</button>
                             <div id="admin-service-result" class="result-card">
-                                <!-- Admin service response will be displayed here -->
+                                <!-- Admin service response -->
                             </div>
                         </div>
+                        
                         <div class="admin-section">
-                            <h3>Users Management</h3>
+                            <h3>User Management</h3>
                             <button id="admin-users-btn" class="btn btn-secondary">View All Users</button>
+                            <button id="admin-sessions-btn" class="btn btn-secondary">Active Sessions</button>
                             <div id="admin-users-result" class="result-card">
-                                <!-- Users list will be displayed here -->
+                                <!-- Users list -->
                             </div>
                         </div>
+                        
                         <div class="admin-section">
-                            <h3>System Statistics</h3>
-                            <button id="admin-stats-btn" class="btn btn-secondary">View System Stats</button>
+                            <h3>System Management</h3>
+                            <button id="admin-stats-btn" class="btn btn-secondary">System Statistics</button>
+                            <button id="admin-blacklist-btn" class="btn btn-secondary">Token Blacklist</button>
+                            <button id="admin-maintenance-btn" class="btn btn-warning">Maintenance</button>
                             <div id="admin-stats-result" class="result-card">
-                                <!-- Statistics will be displayed here -->
+                                <!-- System statistics -->
+                            </div>
+                        </div>
+
+                        <div class="admin-section">
+                            <h3>Token Control</h3>
+                            <div class="token-control">
+                                <input type="text" id="token-to-blacklist" placeholder="Enter token to blacklist" class="form-input">
+                                <input type="text" id="blacklist-reason" placeholder="Reason for blacklisting" class="form-input">
+                                <button id="blacklist-token-btn" class="btn btn-danger">Blacklist Token</button>
+                            </div>
+                            <div id="admin-blacklist-result" class="result-card">
+                                <!-- Blacklist results -->
                             </div>
                         </div>
                     </div>
@@ -153,7 +264,67 @@
                 <div class="error-page">
                     <h2>Access Denied</h2>
                     <p>You don't have permission to access this page.</p>
+                    <div class="error-details">
+                        <p><strong>Possible reasons:</strong></p>
+                        <ul>
+                            <li>Insufficient role permissions</li>
+                            <li>Token has expired</li>
+                            <li>Token has been blacklisted</li>
+                            <li>Session has been revoked</li>
+                        </ul>
+                    </div>
                     <button id="unauthorized-back" class="btn btn-primary">Go Back</button>
+                    <button id="unauthorized-login" class="btn btn-secondary">Login Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Token Expired View -->
+        <div id="token-expired-view" class="view">
+            <div class="container">
+                <div class="error-page">
+                    <h2>Session Expired</h2>
+                    <p>Your session has expired. Please log in again to continue.</p>
+                    <div class="countdown">
+                        <p>Redirecting to login in <span id="countdown">10</span> seconds...</p>
+                    </div>
+                    <button id="extend-session-btn" class="btn btn-primary">Extend Session</button>
+                    <button id="login-again-btn" class="btn btn-secondary">Login Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug View -->
+        <div id="debug-view" class="view">
+            <div class="container">
+                <div class="debug-panel">
+                    <h2>Debug Information</h2>
+                    <p class="debug-warning">⚠️ Development Mode Only</p>
+                    
+                    <div class="debug-section">
+                        <h3>Current User</h3>
+                        <pre id="debug-user" class="debug-output"></pre>
+                    </div>
+                    
+                    <div class="debug-section">
+                        <h3>Token Payload</h3>
+                        <pre id="debug-token" class="debug-output"></pre>
+                    </div>
+                    
+                    <div class="debug-section">
+                        <h3>Session Information</h3>
+                        <pre id="debug-session" class="debug-output"></pre>
+                    </div>
+                    
+                    <div class="debug-section">
+                        <h3>API Configuration</h3>
+                        <pre id="debug-config" class="debug-output"></pre>
+                    </div>
+                    
+                    <div class="debug-actions">
+                        <button id="refresh-debug" class="btn btn-secondary">Refresh</button>
+                        <button id="close-debug" class="btn btn-primary">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,11 +332,24 @@
 
     <!-- Loading indicator -->
     <div id="loading" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Token Refresh Notification -->
+    <div id="token-refresh-notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <span class="notification-icon">🔄</span>
+            <span class="notification-text">Refreshing token...</span>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="js/api.js"></script>
+    <script src="js/jwt-utils.js"></script>
+    <script src="js/token-manager.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/router.js"></script>
     <script src="js/app.js"></script>

@@ -1,4 +1,4 @@
-# Frontend configuration for Replit
+# Frontend configuration for Replit - v2.0
 run = "python -m http.server 8000"
 modules = ["python-3.10", "web"]
 
@@ -9,6 +9,20 @@ publicDir = "."
 
 [nix]
 channel = "stable-21.11"
+
+[languages.javascript]
+pattern = "**/{*.js,*.jsx,*.ts,*.tsx,*.mjs}"
+syntax = "javascript"
+
+[languages.javascript.languageServer]
+start = "typescript-language-server --stdio"
+
+[deployment]
+build = ["sh", "-c", "echo 'No build required for static frontend'"]
+run = ["sh", "-c", "python -m http.server 8000"]
+
+[deployment.environment]
+PYTHON_VERSION = "3.10"
 
 [custom]
 deployment.userSelection = "frontend"
