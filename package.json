@@ -4,10 +4,16 @@
   "description": "Frontend for Authentication System",
   "main": "index.html",
   "scripts": {
-    "start": "echo 'Open index.html in browser'",
-    "dev": "echo 'Open index.html in browser'"
+    "start": "http-server -c-1 . -p 8080"
   },
-  "keywords": ["authentication", "jwt", "vanilla-js"],
+  "keywords": [
+    "authentication",
+    "jwt",
+    "vanilla-js"
+  ],
   "author": "MiniMax Agent",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
 }
