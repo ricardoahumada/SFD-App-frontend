@@ -3,171 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication System</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>OAuth 2.0 + PKCE Implementation - Educational Demo</title>
+    <link rel="stylesheet" href="css/oauth2-demo.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
-        <!-- Navigation Header -->
-        <nav id="navigation" class="navbar" style="display: none;">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <h2>Auth System</h2>
-                </div>
-                <div class="nav-menu">
-                    <span id="user-info" class="user-info"></span>
-                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
-                </div>
-            </div>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-shield-alt"></i> OAuth 2.0 + PKCE Demo</h1>
+            <p>Educational demonstration of OAuth 2.0 Authorization Code Flow with PKCE security enhancement</p>
+        </header>
+
+        <nav class="navigation">
+            <button class="nav-btn active" data-tab="oauth2-demo">
+                <i class="fas fa-sign-in-alt"></i> OAuth2 Demo
+            </button>
+            <button class="nav-btn" data-tab="pkce-comparison">
+                <i class="fas fa-balance-scale"></i> PKCE Comparison
+            </button>
+            <button class="nav-btn" data-tab="security-benefits">
+                <i class="fas fa-lock"></i> Security Benefits
+            </button>
+            <button class="nav-btn" data-tab="api-test">
+                <i class="fas fa-code"></i> API Testing
+            </button>
         </nav>
 
-        <!-- Welcome View -->
-        <div id="welcome-view" class="view active">
-            <div class="container">
-                <div class="hero">
-                    <h1>Welcome to Authentication System</h1>
-                    <p>A simple JWT-based authentication system with role-based access control.</p>
-                    <div class="actions">
-                        <button id="login-btn" class="btn btn-primary">Login</button>
-                        <button id="about-btn" class="btn btn-secondary">About</button>
-                    </div>
-                </div>
-
-                <div class="features">
-                    <h2>Features</h2>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>JWT Authentication</h3>
-                            <p>Secure token-based authentication using JSON Web Tokens</p>
+        <!-- OAuth2 Demo Tab -->
+        <div id="oauth2-demo" class="tab-content active">
+            <div class="section">
+                <h2><i class="fas fa-play-circle"></i> OAuth 2.0 Authorization Flow Demo</h2>
+                
+                <div class="demo-steps">
+                    <div class="step" id="step-1">
+                        <div class="step-header">
+                            <span class="step-number">1</span>
+                            <h3>Generate Authorization URL</h3>
+                            <button class="btn btn-primary" onclick="startOAuth2Flow()">
+                                <i class="fas fa-magic"></i> Start OAuth2 Flow
+                            </button>
                         </div>
-                        <div class="feature-card">
-                            <h3>Role-Based Access</h3>
-                            <p>Different access levels for admin and customer users</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>Real-time Logging</h3>
-                            <p>Complete request and authentication logging on backend</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="demo-credentials">
-                    <h2>Demo Credentials</h2>
-                    <div class="credential-card">
-                        <h3>Admin User</h3>
-                        <p><strong>Email:</strong> admin@example.com</p>
-                        <p><strong>Password:</strong> admin123</p>
-                    </div>
-                    <div class="credential-card">
-                        <h3>Customer User</h3>
-                        <p><strong>Email:</strong> customer@example.com</p>
-                        <p><strong>Password:</strong> customer123</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Login View -->
-        <div id="login-view" class="view">
-            <div class="container">
-                <div class="auth-card">
-                    <h2>Login</h2>
-                    <form id="login-form">
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password:</label>
-                            <input type="password" id="password" name="password" required>
-                        </div>
-                        <div id="login-error" class="error-message" style="display: none;"></div>
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </form>
-                    <div class="auth-footer">
-                        <button id="back-to-welcome" class="btn btn-link">Back to Welcome</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Customer View -->
-        <div id="customer-view" class="view">
-            <div class="container">
-                <div class="dashboard">
-                    <h2>Customer Dashboard</h2>
-                    <div class="dashboard-content">
-                        <div class="user-section">
-                            <h3>Your Profile</h3>
-                            <div id="customer-profile" class="info-card">
-                                <!-- Profile information will be loaded here -->
-                            </div>
-                        </div>
-                        <div class="service-section">
-                            <h3>Customer Service</h3>
-                            <button id="customer-service-btn" class="btn btn-primary">Access Customer Service</button>
-                            <div id="customer-service-result" class="result-card">
-                                <!-- Service response will be displayed here -->
+                        <div class="step-content">
+                            <p>Click the button above to generate a Google OAuth2 authorization URL with PKCE challenge.</p>
+                            <div id="auth-url-result" class="result-box" style="display: none;"></div>
+                            <div id="pkce-details" class="pkce-details" style="display: none;">
+                                <h4>PKCE Details:</h4>
+                                <div class="code-block">
+                                    <strong>Code Verifier:</strong> <span id="code-verifier-display"></span>
+                                    <button class="btn btn-sm" onclick="copyToClipboard('code-verifier-display')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                <div class="code-block">
+                                    <strong>Code Challenge:</strong> <span id="code-challenge-display"></span>
+                                    <button class="btn btn-sm" onclick="copyToClipboard('code-challenge-display')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Admin View -->
-        <div id="admin-view" class="view">
-            <div class="container">
-                <div class="dashboard">
-                    <h2>Admin Dashboard</h2>
-                    <div class="dashboard-content">
-                        <div class="admin-section">
-                            <h3>Admin Service</h3>
-                            <button id="admin-service-btn" class="btn btn-primary">Access Admin Service</button>
-                            <div id="admin-service-result" class="result-card">
-                                <!-- Admin service response will be displayed here -->
+                    <div class="step" id="step-2">
+                        <div class="step-header">
+                            <span class="step-number">2</span>
+                            <h3>Complete Google Authorization</h3>
+                        </div>
+                        <div class="step-content">
+                            <p>Open the authorization URL in a new window and complete the Google OAuth2 flow.</p>
+                            <div class="manual-steps">
+                                <ol>
+                                    <li>Copy the authorization URL from the result above</li>
+                                    <li>Open it in a new browser tab/window</li>
+                                    <li>Sign in with your Google account</li>
+                                    <li>Grant the requested permissions</li>
+                                    <li>You'll be redirected to a callback URL</li>
+                                    <li>Copy the <code>code</code> parameter from the URL</li>
+                                </ol>
                             </div>
                         </div>
-                        <div class="admin-section">
-                            <h3>Users Management</h3>
-                            <button id="admin-users-btn" class="btn btn-secondary">View All Users</button>
-                            <div id="admin-users-result" class="result-card">
-                                <!-- Users list will be displayed here -->
-                            </div>
+                    </div>
+
+                    <div class="step" id="step-3">
+                        <div class="step-header">
+                            <span class="step-number">3</span>
+                            <h3>Exchange Code for Tokens</h3>
                         </div>
-                        <div class="admin-section">
-                            <h3>System Statistics</h3>
-                            <button id="admin-stats-btn" class="btn btn-secondary">View System Stats</button>
-                            <div id="admin-stats-result" class="result-card">
-                                <!-- Statistics will be displayed here -->
+                        <div class="step-content">
+                            <div class="input-group">
+                                <label for="authorization-code">Authorization Code:</label>
+                                <input type="text" id="authorization-code" placeholder="Paste the authorization code here">
+                                <button class="btn btn-success" onclick="exchangeCodeForTokens()">
+                                    <i class="fas fa-exchange-alt"></i> Exchange Code
+                                </button>
                             </div>
+                            <div id="token-result" class="result-box" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="step" id="step-4">
+                        <div class="step-header">
+                            <span class="step-number">4</span>
+                            <h3>Access Protected Resources</h3>
+                        </div>
+                        <div class="step-content">
+                            <p>Now that you have access tokens, try accessing protected resources:</p>
+                            <div class="action-buttons">
+                                <button class="btn btn-info" onclick="getUserProfile()">
+                                    <i class="fas fa-user"></i> Get User Profile
+                                </button>
+                                <button class="btn btn-info" onclick="getUserDashboard()">
+                                    <i class="fas fa-tachometer-alt"></i> Get Dashboard
+                                </button>
+                                <button class="btn btn-warning" onclick="refreshAccessToken()">
+                                    <i class="fas fa-sync"></i> Refresh Token
+                                </button>
+                            </div>
+                            <div id="api-result" class="result-box" style="display: none;"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Unauthorized View -->
-        <div id="unauthorized-view" class="view">
-            <div class="container">
-                <div class="error-page">
-                    <h2>Access Denied</h2>
-                    <p>You don't have permission to access this page.</p>
-                    <button id="unauthorized-back" class="btn btn-primary">Go Back</button>
+        <!-- PKCE Comparison Tab -->
+        <div id="pkce-comparison" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-balance-scale"></i> PKCE vs Standard OAuth2</h2>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-card without-pkce">
+                        <h3><i class="fas fa-times-circle"></i> Without PKCE (Vulnerable)</h3>
+                        <div class="attack-scenario">
+                            <h4>Authorization Code Interception Attack</h4>
+                            <div class="attack-steps">
+                                <div class="attack-step">
+                                    <span class="step-icon">1</span>
+                                    <p>User clicks malicious app authorization link</p>
+                                </div>
+                                <div class="attack-step">
+                                    <span class="step-icon">2</span>
+                                    <p>User authenticates on legitimate OAuth2 provider</p>
+                                </div>
+                                <div class="attack-step">
+                                    <span class="step-icon">3</span>
+                                    <p>Attacker intercepts the authorization code</p>
+                                </div>
+                                <div class="attack-step">
+                                    <span class="step-icon">4</span>
+                                    <p>Attacker exchanges code for tokens using their own app</p>
+                                </div>
+                                <div class="attack-step">
+                                    <span class="step-icon">5</span>
+                                    <p>Attacker gains unauthorized access to user resources</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-card with-pkce">
+                        <h3><i class="fas fa-check-circle"></i> With PKCE (Secure)</h3>
+                        <div class="pkce-protection">
+                            <h4>PKCE Protection Mechanism</h4>
+                            <div class="protection-steps">
+                                <div class="protection-step">
+                                    <span class="step-icon">1</span>
+                                    <p>Client generates cryptographically secure code verifier</p>
+                                </div>
+                                <div class="protection-step">
+                                    <span class="step-icon">2</span>
+                                    <p>Client derives code challenge from verifier using S256</p>
+                                </div>
+                                <div class="protection-step">
+                                    <span class="step-icon">3</span>
+                                    <p>Authorization request includes code challenge</p>
+                                </div>
+                                <div class="protection-step">
+                                    <span class="step-icon">4</span>
+                                    <p>Attacker intercepts authorization code but cannot generate valid challenge</p>
+                                </div>
+                                <div class="protection-step">
+                                    <span class="step-icon">5</span>
+                                    <p>Token exchange fails because attacker cannot prove they initiated the request</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="live-demo">
+                    <h3><i class="fas fa-flask"></i> Live PKCE Generation Demo</h3>
+                    <button class="btn btn-primary" onclick="generatePKCEDemo()">
+                        <i class="fas fa-magic"></i> Generate PKCE Challenge
+                    </button>
+                    <div id="pkce-demo-result" class="result-box" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Benefits Tab -->
+        <div id="security-benefits" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-lock"></i> Security Benefits of PKCE</h2>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Authorization Code Interception Protection</h3>
+                        <p>PKCE prevents attackers from intercepting authorization codes and using them to obtain access tokens.</p>
+                        <div class="technical-detail">
+                            <strong>How it works:</strong> The code challenge binds the authorization request to the token exchange request through cryptographic verification.
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h3>Public Client Security</h3>
+                        <p>Enables secure OAuth2 flows for public clients (mobile, desktop, SPA) that cannot store client secrets.</p>
+                        <div class="technical-detail">
+                            <strong>Use case:</strong> Essential for mobile apps and browser-based applications that cannot safely store secrets.
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-crypto"></i>
+                        </div>
+                        <h3>Cryptographic Binding</h3>
+                        <p>Uses SHA-256 hashing to create an unbreakable link between the authorization request and token exchange.</p>
+                        <div class="technical-detail">
+                            <strong>Algorithm:</strong> Code challenge = base64url(SHA256(code verifier))
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3>Stateless Security</h3>
+                        <p>Provides security benefits without requiring server-side session storage or state management.</p>
+                        <div class="technical-detail">
+                            <strong>Advantage:</strong> Works seamlessly with distributed systems and stateless architectures.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="implementation-guide">
+                    <h3><i class="fas fa-book"></i> Implementation Guide</h3>
+                    <div class="code-example">
+                        <h4>JavaScript PKCE Implementation</h4>
+                        <pre><code>// Generate code verifier
+function generateCodeVerifier() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    let result = '';
+    const randomValues = new Uint8Array(128);
+    crypto.getRandomValues(randomValues);
+    
+    for (let i = 0; i < 128; i++) {
+        result += chars[randomValues[i] % chars.length];
+    }
+    return result;
+}
+
+// Generate code challenge
+async function generateCodeChallenge(codeVerifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(codeVerifier);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return base64urlEncode(hash);
+}
+
+function base64urlEncode(arrayBuffer) {
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Testing Tab -->
+        <div id="api-test" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-code"></i> API Testing Console</h2>
+                
+                <div class="token-info">
+                    <h3>Current Token Status</h3>
+                    <div id="token-status" class="status-box">
+                        <p>No active tokens. Please complete the OAuth2 flow first.</p>
+                    </div>
+                </div>
+
+                <div class="api-endpoints">
+                    <h3>Available Endpoints</h3>
+                    <div class="endpoint-grid">
+                        <div class="endpoint-card">
+                            <h4>Public Endpoints</h4>
+                            <button class="btn btn-secondary" onclick="testEndpoint('/api/public/info')">
+                                <i class="fas fa-info-circle"></i> GET /api/public/info
+                            </button>
+                            <button class="btn btn-secondary" onclick="testEndpoint('/health')">
+                                <i class="fas fa-heartbeat"></i> GET /health
+                            </button>
+                        </div>
+
+                        <div class="endpoint-card">
+                            <h4>Protected Endpoints</h4>
+                            <button class="btn btn-primary" onclick="testEndpoint('/api/user/profile')" disabled>
+                                <i class="fas fa-user"></i> GET /api/user/profile
+                            </button>
+                            <button class="btn btn-primary" onclick="testEndpoint('/api/user/dashboard')" disabled>
+                                <i class="fas fa-tachometer-alt"></i> GET /api/user/dashboard
+                            </button>
+                        </div>
+
+                        <div class="endpoint-card">
+                            <h4>Admin Endpoints</h4>
+                            <button class="btn btn-warning" onclick="testEndpoint('/api/admin/dashboard')" disabled>
+                                <i class="fas fa-cog"></i> GET /api/admin/dashboard
+                            </button>
+                            <button class="btn btn-warning" onclick="testEndpoint('/api/admin/oauth2-stats')" disabled>
+                                <i class="fas fa-chart-bar"></i> GET /api/admin/oauth2-stats
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="request-response">
+                    <h3>Request/Response Details</h3>
+                    <div id="request-details" class="code-block"></div>
+                    <div id="response-details" class="code-block"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Loading indicator -->
-    <div id="loading" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processing...</p>
+        </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/router.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/oauth2-client.js"></script>
+    <script src="js/pkce-helper.js"></script>
+    <script src="js/demo-ui.js"></script>
 </body>
 </html>

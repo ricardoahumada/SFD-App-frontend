@@ -9,6 +9,7 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+*~
 
 # OS generated files
 .DS_Store
@@ -30,3 +31,43 @@ temp/
 # Package files
 *.tgz
 *.tar.gz
+
+# Build files (if using build tools)
+dist/
+build/
+out/
+
+# Test files
+test-results/
+coverage/
+
+# Cache files
+.cache/
+.parcel-cache/
+
+# Local configuration
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backup files
+*.backup
+*.bak
+
+# Generated files
+generated/
+
+# Local development
+.local/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

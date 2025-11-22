@@ -1,14 +1,15 @@
-// Router for client-side navigation
+// Enhanced Router for client-side navigation with token validation
 
-class Router {
+class EnhancedRouter {
     constructor() {
         this.routes = new Map();
         this.currentRoute = '';
+        this.isInitialized = false;
         this.init();
     }
 
     /**
-     * Initialize router and set up hash change listener
+     * Initialize router and set up event listeners
      */
     init() {
         // Listen for hash changes
@@ -21,12 +22,13 @@ class Router {
         
         // Make router globally available
         window.router = this;
+        this.isInitialized = true;
+        
+        console.log('Enhanced Router initialized');
     }
 
     /**
      * Add a route to the router
-     * @param {string} path - Route path (e.g., '/login', '/customer')
-     * @param {function} handler - Route handler function
      */
     addRoute(path, handler) {
         this.routes.set(path, handler);
@@ -34,7 +36,6 @@ class Router {
 
     /**
      * Navigate to a specific route
-     * @param {string} path - Route path
      */
     navigate(path) {
         if (path !== this.currentRoute) {
@@ -51,7 +52,7 @@ class Router {
     }
 
     /**
-     * Handle route changes
+     * Handle route changes with comprehensive validation
      */
     handleRouteChange() {
         const currentPath = this.getCurrentRoute();
@@ -62,7 +63,7 @@ class Router {
         // Update current route
         this.currentRoute = currentPath;
         
-        // Handle route based on authentication and authorization
+        // Handle route with authentication and authorization checks
         this.handleRoute(currentPath);
     }
 
@@ -78,7 +79,6 @@ class Router {
 
     /**
      * Show a specific view
-     * @param {string} viewId - ID of the view to show
      */
     showView(viewId) {
         const view = document.getElementById(viewId);
@@ -88,12 +88,18 @@ class Router {
     }
 
     /**
-     * Handle route with authentication and authorization checks
-     * @param {string} path - Route path
+     * Enhanced route handling with token validation
      */
     handleRoute(path) {
-        const isAuthenticated = window.api.isAuthenticated();
-        const user = window.api.getCurrentUser();
+        const tokenManager = window.tokenManager;
+        const isAuthenticated = tokenManager.isAuthenticated();
+        const user = tokenManager.getUser();
+        
+        console.log('Route handling:', {
+            path,
+            isAuthenticated,
+            user: user ? { id: user.id, role: user.role } : null
+        });
         
         // Public routes
         if (path === '/' || path === '/welcome') {
@@ -117,6 +123,17 @@ class Router {
             return;
         }
         
+        // Debug route (development only)
+        if (path === '/debug') {
+            if (this.isDevelopmentMode()) {
+                this.showView('debug-view');
+                this.loadDebugInfo();
+            } else {
+                this.showView('welcome-view');
+            }
+            return;
+        }
+        
         // Protected routes
         if (!isAuthenticated) {
             this.showView('login-view');
@@ -126,9 +143,9 @@ class Router {
         
         // Check token expiration
         if (window.auth.isTokenExpired()) {
-            window.api.removeToken();
-            this.showView('login-view');
-            this.navigate('/login');
+            console.log('Token expired, showing expired view');
+            this.showView('token-expired-view');
+            window.auth.startTokenExpirationCountdown();
             return;
         }
         
@@ -138,8 +155,7 @@ class Router {
                 if (user.role === 'customer') {
                     this.showView('customer-view');
                     window.auth.updateUserInfo();
-                    // Load customer profile
-                    this.loadCustomerProfile();
+                    this.loadCustomerData();
                 } else {
                     this.showView('unauthorized-view');
                 }
@@ -149,8 +165,22 @@ class Router {
                 if (user.role === 'admin') {
                     this.showView('admin-view');
                     window.auth.updateUserInfo();
+                    // Admin data is loaded on demand
                 } else {
                     this.showView('unauthorized-view');
+                }
+                break;
+                
+            case '/profile':
+                if (user) {
+                    // Show appropriate profile based on role
+                    if (user.role === 'admin') {
+                        this.navigate('/admin');
+                    } else {
+                        this.navigate('/customer');
+                    }
+                } else {
+                    this.showView('login-view');
                 }
                 break;
                 
@@ -162,35 +192,243 @@ class Router {
     }
 
     /**
-     * Load customer profile data
+     * Load customer data when customer view is shown
      */
-    loadCustomerProfile() {
+    loadCustomerData() {
+        this.loadCustomerProfile();
+        this.loadCustomerTokenInfo();
+    }
+
+    /**
+     * Load customer profile
+     */
+    async loadCustomerProfile() {
         const profileContainer = document.getElementById('customer-profile');
         if (!profileContainer) return;
         
-        window.api.getCustomerProfile()
-            .then(response => {
-                if (response.success && response.profile) {
-                    const profile = response.profile;
-                    profileContainer.innerHTML = `
+        profileContainer.innerHTML = '<div class="loading-placeholder">Loading profile...</div>';
+        
+        try {
+            const response = await window.api.getCustomerProfile();
+            if (response.success && response.profile) {
+                const profile = response.profile;
+                profileContainer.innerHTML = `
+                    <div class="profile-info">
                         <p><strong>Name:</strong> ${profile.name}</p>
                         <p><strong>Email:</strong> ${profile.email}</p>
                         <p><strong>Role:</strong> ${profile.role}</p>
                         <p><strong>Account Status:</strong> ${profile.accountStatus}</p>
-                        <p><strong>Member Since:</strong> ${profile.memberSince}</p>
-                    `;
-                }
-            })
-            .catch(error => {
-                profileContainer.innerHTML = `
-                    <p style="color: #e74c3c;">Error loading profile: ${error.message}</p>
+                        <p><strong>Membership Level:</strong> ${profile.membershipLevel}</p>
+                        <p><strong>Member Since:</strong> ${new Date(profile.createdAt).toLocaleDateString()}</p>
+                        <p><strong>Last Login:</strong> ${profile.lastLogin ? new Date(profile.lastLogin.timestamp).toLocaleString() : 'Never'}</p>
+                        <div class="scopes">
+                            <strong>Permissions:</strong> ${profile.scopes.join(', ')}
+                        </div>
+                    </div>
                 `;
-            });
+            }
+        } catch (error) {
+            profileContainer.innerHTML = `
+                <div style="color: #e74c3c;">Error loading profile: ${error.message}</div>
+            `;
+        }
+    }
+
+    /**
+     * Load customer token information
+     */
+    loadCustomerTokenInfo() {
+        const tokenInfoContainer = document.getElementById('customer-token-info');
+        if (!tokenInfoContainer) return;
+        
+        // Token info is loaded by the token manager
+        window.tokenManager.updateTokenDisplays();
+    }
+
+    /**
+     * Load debug information
+     */
+    loadDebugInfo() {
+        const tokenManager = window.tokenManager;
+        
+        // Current user info
+        const userElement = document.getElementById('debug-user');
+        if (userElement) {
+            const user = tokenManager.getUser();
+            userElement.textContent = JSON.stringify(user || { message: 'Not authenticated' }, null, 2);
+        }
+        
+        // Token payload
+        const tokenElement = document.getElementById('debug-token');
+        if (tokenElement) {
+            const token = tokenManager.getAccessToken();
+            if (token) {
+                const payload = window.JWTUtils.parseJWT(token);
+                tokenElement.textContent = JSON.stringify(payload, null, 2);
+            } else {
+                tokenElement.textContent = 'No access token';
+            }
+        }
+        
+        // Session information
+        const sessionElement = document.getElementById('debug-session');
+        if (sessionElement) {
+            const session = tokenManager.getSession();
+            const expInfo = tokenManager.getTokenExpirationInfo();
+            sessionElement.textContent = JSON.stringify({
+                session: session,
+                expiration: expInfo
+            }, null, 2);
+        }
+        
+        // API configuration
+        const configElement = document.getElementById('debug-config');
+        if (configElement) {
+            configElement.textContent = JSON.stringify(window.api.getConfig(), null, 2);
+        }
+    }
+
+    /**
+     * Check if running in development mode
+     */
+    isDevelopmentMode() {
+        return window.location.hostname === 'localhost' || 
+               window.location.hostname === '127.0.0.1' ||
+               window.location.hostname.includes('repl.co') ||
+               window.location.hostname.includes('codesandbox.io');
+    }
+
+    /**
+     * Get route history
+     */
+    getHistory() {
+        // Simple history tracking
+        return this.history || [];
+    }
+
+    /**
+     * Check if route is protected
+     */
+    isProtectedRoute(path) {
+        const protectedRoutes = ['/customer', '/admin', '/profile'];
+        return protectedRoutes.includes(path);
+    }
+
+    /**
+     * Get required role for route
+     */
+    getRequiredRole(path) {
+        const roleMap = {
+            '/customer': 'customer',
+            '/admin': 'admin',
+            '/profile': null // any authenticated user
+        };
+        return roleMap[path] || null;
+    }
+
+    /**
+     * Get required scopes for route
+     */
+    getRequiredScopes(path) {
+        const scopeMap = {
+            '/admin/users': ['users:read'],
+            '/admin/stats': ['stats:read'],
+            '/admin/sessions': ['users:read'],
+            '/customer/profile': ['profile:read'],
+            '/customer/data': ['read']
+        };
+        return scopeMap[path] || [];
+    }
+
+    /**
+     * Validate route access
+     */
+    validateRouteAccess(path) {
+        const tokenManager = window.tokenManager;
+        const isAuthenticated = tokenManager.isAuthenticated();
+        const user = tokenManager.getUser();
+        
+        // Check authentication
+        if (this.isProtectedRoute(path) && !isAuthenticated) {
+            return {
+                valid: false,
+                reason: 'Authentication required'
+            };
+        }
+        
+        // Check role
+        const requiredRole = this.getRequiredRole(path);
+        if (requiredRole && user?.role !== requiredRole) {
+            return {
+                valid: false,
+                reason: `Role required: ${requiredRole}, user role: ${user?.role}`
+            };
+        }
+        
+        // Check scopes
+        const requiredScopes = this.getRequiredScopes(path);
+        if (requiredScopes.length > 0) {
+            const userScopes = user?.scopes || [];
+            const hasScopes = requiredScopes.every(scope => userScopes.includes(scope));
+            if (!hasScopes) {
+                return {
+                    valid: false,
+                    reason: `Scopes required: ${requiredScopes.join(', ')}`
+                };
+            }
+        }
+        
+        return { valid: true };
+    }
+
+    /**
+     * Handle navigation errors
+     */
+    handleNavigationError(error) {
+        console.error('Navigation error:', error);
+        
+        // Show user-friendly error
+        window.tokenManager.showNotification(
+            'Navigation error: ' + error.message,
+            'error'
+        );
+    }
+
+    /**
+     * Refresh current route
+     */
+    refresh() {
+        this.handleRouteChange();
+    }
+
+    /**
+     * Get current route information
+     */
+    getCurrentRouteInfo() {
+        const path = this.getCurrentRoute();
+        return {
+            path,
+            isProtected: this.isProtectedRoute(path),
+            requiredRole: this.getRequiredRole(path),
+            requiredScopes: this.getRequiredScopes(path),
+            validation: this.validateRouteAccess(path)
+        };
     }
 }
 
-// Initialize router
-window.router = new Router();
+// Create and export router instance
+window.EnhancedRouter = EnhancedRouter;
 
-// Export router class
-window.Router = Router;
+// Auto-initialize when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.router = new EnhancedRouter();
+    });
+} else {
+    window.router = new EnhancedRouter();
+}
+
+// Export for potential manual initialization
+window.initRouter = () => {
+    return new EnhancedRouter();
+};
